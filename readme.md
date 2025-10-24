@@ -142,42 +142,33 @@ Runs on http://localhost:3000
 Communicates with Flask through React Query API hooks
 
 Provides:
-
-Uploading – upload Excel/CSV data files
-
-Generating – run the CSP solver and view results
-
-History Tracking – browse previously generated timetables
-
-Timetable Page – visualize detailed schedules
+1) Uploading – upload Excel/CSV data files
+2) Generating – run the CSP solver and view results
+3) History Tracking – browse previously generated timetables
+4) Timetable Page – visualize detailed schedules
 
 🧩 Example Workflow
 
-1) Upload Data
+Upload Data
 
-Click on upload
+1) Click on upload
+2) Upload an Excel or CSV file with courses, instructors, rooms, and sections
+3) The backend parses and seeds the database
 
-Upload an Excel or CSV file with courses, instructors, rooms, and sections
+Generate Timetable
 
-The backend parses and seeds the database
+1) Click “Generate Timetable” to trigger CSP solving on the backend
+2) The backend applies constraints and assigns valid (time slot, room, instructor) tuples
 
-2) Generate Timetable
+View Results
 
-Click “Generate Timetable” to trigger CSP solving on the backend
+1) Once generated, view the timetable grid or export as CSV
+2) All generated timetables are stored with metadata (generation time, violations, etc.)
 
-The backend applies constraints and assigns valid (time slot, room, instructor) tuples
+History
 
-3) View Results
-
-Once generated, view the timetable grid or export as CSV
-
-All generated timetables are stored with metadata (generation time, violations, etc.)
-
-4) History
-
-Visit /history or check the sidebar to view all past generations
-
-Click any record to view its details and re-generate with adjustments
+1) Visit /history or check the sidebar to view all past generations
+2) Click any record to view its details and re-generate with adjustments
 
 ⚙️ Developer Tips
 
