@@ -28,11 +28,9 @@ export default function UploadModal({ isOpen, onClose } : UploadModalProps) {
         setStatus("UPLOADING");
         const formData = new FormData();
 
-        Array.from(files).forEach((file, index) => {
-            formData.append(`files[${index}]`, file);
+        Array.from(files).forEach(file => {
+            formData.append(`files`, file);
         });
-
-
     }
 
     const isUploadable = files && files.length === 5 && status != "UPLOADING";

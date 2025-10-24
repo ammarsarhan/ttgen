@@ -37,7 +37,7 @@ Base.metadata.drop_all(engine)
 Base.metadata.create_all(engine)
 
 # Courses
-with open("data/Courses.csv", newline="", encoding="utf-8") as f:
+with open("sample/Courses.csv", newline="", encoding="utf-8") as f:
     reader = csv.DictReader(f)
     for row in reader:
         course = Course(
@@ -52,7 +52,7 @@ with open("data/Courses.csv", newline="", encoding="utf-8") as f:
 session.commit()
 
 # Instructors
-with open("data/Instructor.csv", newline="", encoding="utf-8") as f:
+with open("sample/Instructor.csv", newline="", encoding="utf-8") as f:
     reader = csv.DictReader(f)
     for row in reader:
         id = row["InstructorID"]
@@ -79,7 +79,7 @@ with open("data/Instructor.csv", newline="", encoding="utf-8") as f:
 session.commit()
 
 # Rooms
-with open("data/Rooms.csv", newline="", encoding="utf-8") as f:
+with open("sample/Rooms.csv", newline="", encoding="utf-8") as f:
     reader = csv.DictReader(f)
     for row in reader:
         room = Room(
@@ -93,7 +93,7 @@ with open("data/Rooms.csv", newline="", encoding="utf-8") as f:
 session.commit()
 
 # Sections
-with open("data/Sections.csv", newline="", encoding="utf-8-sig") as f:
+with open("sample/Sections.csv", newline="", encoding="utf-8-sig") as f:
     reader = csv.DictReader(f)
     for row in reader:
         id = row["SectionID"]
@@ -116,7 +116,7 @@ with open("data/Sections.csv", newline="", encoding="utf-8-sig") as f:
 session.commit()
 
 # Time Slots
-with open("data/TimeSlots.csv", newline="", encoding="utf-8") as f:
+with open("sample/TimeSlots.csv", newline="", encoding="utf-8") as f:
     reader = csv.DictReader(f)
     for row in reader:
         timeSlot = TimeSlot(
