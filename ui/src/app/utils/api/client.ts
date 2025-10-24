@@ -12,6 +12,16 @@ export async function uploadFiles(files: FormData) {
     };
 
     const data = await res.json();
-    console.log(data);
     return data;
-}
+};
+
+export async function fetchDataset() {
+    const target = "http://localhost:5000/dataset";
+
+    const res = await fetch(target, {
+        method: "GET"
+    });
+
+    const { data } = await res.json();
+    return data;
+};

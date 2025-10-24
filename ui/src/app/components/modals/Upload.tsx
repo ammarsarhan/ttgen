@@ -38,7 +38,9 @@ export default function UploadModal({ isOpen, onClose } : UploadModalProps) {
             onClose();
         },
         onError: () => {
-
+            // Show an error message to the user.
+            
+            setStatus("IDLE")
         }
     });
 

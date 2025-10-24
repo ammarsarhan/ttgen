@@ -1,7 +1,51 @@
 from sqlalchemy import Column, Integer, String, Enum, Table, ForeignKey
 from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy.inspection import inspect
 
 Base = declarative_base()
+
+# Extend Base class to add toDict function
+class BaseMixin:
+    def toDict(self, include_relationships: bool = True, _visited: set = None):
+        if _visited is None:
+            _visited = set()
+
+        # Identify object by (class, PK tuple) to avoid revisiting
+        pk_vals = tuple(getattr(self, col.key) for col in inspect(self.__class__).primary_key)
+        identity = (self.__class__, pk_vals)
+        
+        if identity in _visited:
+            # Return primary key reference if already visited
+            return {"_ref": {c.name: getattr(self, c.name) for c in inspect(self.__class__).primary_key}}
+
+        _visited.add(identity)
+
+        mapper = inspect(self.__class__)
+        result = {}
+
+        # columns
+        for column in mapper.columns:
+            result[column.key] = getattr(self, column.key)
+
+        # relationships
+        if include_relationships:
+            for rel_name, relation in mapper.relationships.items():
+                val = getattr(self, rel_name)
+                if val is None:
+                    result[rel_name] = None
+                elif relation.uselist:
+                    result[rel_name] = [
+                        v.toDict(include_relationships=False, _visited=_visited) if hasattr(v, "toDict") else None
+                        for v in val
+                    ]
+                else:
+                    result[rel_name] = (
+                        val.toDict(include_relationships=False, _visited=_visited)
+                        if hasattr(val, "toDict")
+                        else None
+                    )
+
+        return result
 
 instructorCourse = Table(
     "instructor_course",
@@ -17,7 +61,7 @@ sectionCourse = Table(
     Column("course_id", String, ForeignKey("courses.id"), primary_key=True)
 )
 
-class Course(Base):
+class Course(Base, BaseMixin):
     __tablename__ = "courses"
 
     TypeEnum = Enum("Lecture", "Lecture and Lab", "Lab", name="course_type_enum")
@@ -42,7 +86,7 @@ class Course(Base):
     )
 
 
-class Instructor(Base):
+class Instructor(Base, BaseMixin):
     __tablename__ = "instructors"
 
     RoleEnum = Enum(
@@ -74,7 +118,7 @@ class Instructor(Base):
         cascade="all, delete"
     )
 
-class Room(Base):
+class Room(Base, BaseMixin):
     __tablename__ = "rooms"
 
     TypeEnum = Enum("Lecture", "Lab", name="room_type_enum")
@@ -83,7 +127,7 @@ class Room(Base):
     type = Column(TypeEnum, nullable=False)
     capacity = Column(Integer, nullable=False)
 
-class Section(Base):
+class Section(Base, BaseMixin):
     __tablename__ = "sections"
 
     id = Column(String, primary_key=True)
@@ -96,7 +140,7 @@ class Section(Base):
         cascade="all, delete"
     )
 
-class TimeSlot(Base):
+class TimeSlot(Base, BaseMixin):
     __tablename__ = "time_slots"
 
     DayEnum = Enum("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", name="day_enum")
