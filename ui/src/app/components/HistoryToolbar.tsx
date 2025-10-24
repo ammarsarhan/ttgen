@@ -1,27 +1,46 @@
 "use client";
 
 import { useState } from "react";
+
+import useAppContext from "@/app/context/useAppContext";
+import GenerateModal from "@/app/components/modals/Generate";
+import UploadModal from "@/app/components/modals/Upload";
+
 import { BiPlus, BiSearch } from "react-icons/bi";
 import { MdOutlineUploadFile } from "react-icons/md";
 
 export default function HistoryToolbar() {
+    const { isGenerateModalOpen, setIsGenerateModalOpen, isUploadModalOpen, setIsUploadModalOpen } = useAppContext();
+
     const [activeFiles, setActiveFiles] = useState([]);
     const [history, setHistory] = useState([]);
 
+    const GroundModalProps = {
+        isOpen: isGenerateModalOpen,
+        onClose: () => setIsGenerateModalOpen(false)
+    };
+    
+    const UploadModalProps = {
+        isOpen: isUploadModalOpen,
+        onClose: () => setIsUploadModalOpen(false)
+    };
+
     return (
         <>
+            <GenerateModal {...GroundModalProps}/>
+            <UploadModal {...UploadModalProps}/>
             <aside className="h-full border-r w-80 border-gray-200 text-[0.83rem]">
                 <div className="h-16 border-b border-gray-200">
 
                 </div>
                 <div className="p-4">
                     <div className="flex flex-col gap-y-1">
-                        <button className="flex w-full items-center gap-x-2 p-2 hover:bg-gray-100 rounded-md cursor-pointer">
+                        <button className="flex w-full items-center gap-x-2 p-2 hover:bg-gray-100 rounded-md cursor-pointer" onClick={() => setIsGenerateModalOpen(true)}>
                             <BiPlus className="size-4.5"/>
                             <span className="font-medium">Generate Timetable</span>
                         </button>
                         <div className="flex flex-col gap-y-1.5 my-2">
-                            <button className="flex w-full items-center gap-x-2 p-2 hover:bg-gray-100 rounded-md cursor-pointer">
+                            <button className="flex w-full items-center gap-x-2 p-2 hover:bg-gray-100 rounded-md cursor-pointer" onClick={() => setIsUploadModalOpen(true)}>
                                 <MdOutlineUploadFile className="size-4.5"/>
                                 <span className="font-medium">Upload Files</span>
                             </button>

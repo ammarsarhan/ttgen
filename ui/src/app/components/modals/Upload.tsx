@@ -1,12 +1,12 @@
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { IoClose } from "react-icons/io5";
 
-interface GenerateModalProps {
+interface UploadModalProps {
     isOpen: boolean;
     onClose: () => void;
 }
 
-export default function GenerateModal({ isOpen, onClose } : GenerateModalProps) {
+export default function UploadModal({ isOpen, onClose } : UploadModalProps) {
     return (
         <AnimatePresence>
             {isOpen && (
@@ -30,10 +30,8 @@ export default function GenerateModal({ isOpen, onClose } : GenerateModalProps) 
                     >
                         <div className="flex items-start justify-between gap-x-32 p-6">
                             <div className="flex flex-col gap-y-0.5 max-w-80">
-                                <h1 className="font-medium text-sm">Generate Timetable</h1>
-                                <p className="text-gray-500 text-[0.775rem]">
-                                    Use the uploaded files to generate a timetable using the CSP backtracking solver.
-                                </p>
+                                <h1 className="font-medium text-sm">Upload Files</h1>
+                                <p className="text-gray-500 text-[0.775rem]">The solver requires <span className="underline">5 files</span> in either .xlsx or .csv format. This will be used to seed the database with data to help with easier querying, storage, and auditing of data.</p>
                             </div>
                             <button
                                 onClick={onClose}

@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import './globals.css'
 
+import { AppContextProvider } from "@/app/context/useAppContext";
 import Navigation from "@/app/components/Navigation";
 import HistoryToolbar from "@/app/components/HistoryToolbar";
+
+import './globals.css'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,11 +29,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} flex h-screen w-full antialiased`}>
-        <HistoryToolbar/>
-        <div className="w-full">
-          <Navigation/>
-          {children}  
-        </div>
+        <AppContextProvider>
+          <HistoryToolbar/>
+          <div className="w-full">
+            <Navigation/>
+            {children}  
+          </div>
+        </AppContextProvider>
       </body>
     </html>
   );
