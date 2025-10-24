@@ -1,7 +1,12 @@
-import { AnimatePresence, motion } from "framer-motion";
 import { ChangeEvent, useState } from "react";
+
+import { useMutation } from "@tanstack/react-query";
+import { AnimatePresence, motion } from "framer-motion";
+import { uploadFiles } from "@/app/utils/api/client";
+
 import { IoClose } from "react-icons/io5";
 import { MdOutlineUploadFile } from "react-icons/md";
+import useAppContext from "@/app/context/useAppContext";
 
 interface UploadModalProps {
     isOpen: boolean;
@@ -12,9 +17,30 @@ type UploadModalActionType = "NEW" | "OVERRIDE";
 type UploadStatus = "IDLE" | "UPLOADING" | "SUCCESS" | "ERROR";
 
 export default function UploadModal({ isOpen, onClose } : UploadModalProps) {
+    const { setActiveFiles } = useAppContext();
+
     const [actionType, setActionType] = useState<UploadModalActionType>("NEW");
     const [files, setFiles] = useState<File[]>([]);
     const [status, setStatus] = useState<UploadStatus>("IDLE");
+
+    const mutation = useMutation({
+        mutationFn: uploadFiles,
+        mutationKey: ["upload"],
+        onSuccess: (data) => {
+            console.log(data);
+
+            // Show a success message to the user.
+
+            setFiles([]);
+            setActiveFiles(data.files);
+
+            setStatus("IDLE");
+            onClose();
+        },
+        onError: () => {
+
+        }
+    });
 
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
@@ -31,9 +57,13 @@ export default function UploadModal({ isOpen, onClose } : UploadModalProps) {
         Array.from(files).forEach(file => {
             formData.append(`files`, file);
         });
+
+        mutation.mutate(formData);
     }
 
     const isUploadable = files && files.length === 5 && status != "UPLOADING";
+
+    if (!isOpen) return null;
 
     return (
         <AnimatePresence>

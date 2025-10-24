@@ -1,8 +1,10 @@
-from flask import Flask, request, jsonify
 import os
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 from utils.file import allowedFile
 
 app = Flask(__name__)
+CORS(app, origins=["http://localhost:3000"]) # Make sure to accept requests from the frontend link. Ideally provide this in a .env variable.
 
 UPLOAD_DIR = "data"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -47,6 +49,8 @@ def upload():
         savePath = os.path.join("uploads", filename)
         file.save(savePath)
         savedFiles.append(filename)
+
+    print(f"{len(savedFiles)} files uploaded successfully.")
 
     return jsonify({
         "message": f"{len(savedFiles)} files uploaded successfully.",

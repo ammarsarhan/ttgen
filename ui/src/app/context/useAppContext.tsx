@@ -1,5 +1,6 @@
 "use client";
 
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createContext, ReactNode, useContext, useState } from "react";
 
 interface AppContextType {
@@ -7,6 +8,10 @@ interface AppContextType {
     setIsGenerateModalOpen: (value: boolean) => void;
     isUploadModalOpen: boolean;
     setIsUploadModalOpen: (value: boolean) => void;
+    activeFiles: Array<string>;
+    setActiveFiles: (value: Array<string>) => void;
+    timetables: Array<string>;
+    setTimetables: (value: Array<string>) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -26,19 +31,29 @@ interface AppContextProviderProps {
 }
 
 export function AppContextProvider({ children } : AppContextProviderProps) {
+    const queryClient = new QueryClient();
+
     const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+    const [activeFiles, setActiveFiles] = useState<string[]>([]);
+    const [timetables, setTimetables] = useState<string[]>([]);
 
     const value = {
         isGenerateModalOpen,
         setIsGenerateModalOpen,
         isUploadModalOpen,
-        setIsUploadModalOpen
+        setIsUploadModalOpen,
+        activeFiles,
+        setActiveFiles,
+        timetables,
+        setTimetables
     }
 
     return (
-        <AppContext.Provider value={value}>
-            {children}
-        </AppContext.Provider>
+        <QueryClientProvider client={queryClient}>
+            <AppContext.Provider value={value}>
+                {children}
+            </AppContext.Provider>
+        </QueryClientProvider>
     )
 }
