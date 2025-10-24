@@ -16,7 +16,7 @@ export default function GenerateModal({ isOpen, onClose } : GenerateModalProps) 
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.1 }}
-                    className="w-screen h-screen fixed top-0 left-0 flex items-center justify-center bg-black/50 z-[99]"
+                    className="w-screen h-screen fixed top-0 left-0 flex items-center justify-center bg-black/50 z-99"
                     onClick={onClose}
                 >
                     <motion.div

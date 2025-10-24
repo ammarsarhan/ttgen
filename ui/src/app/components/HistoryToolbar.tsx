@@ -55,7 +55,7 @@ export default function HistoryToolbar() {
                                             })
                                         }
                                     </ul> :
-                                    <p className="text-[0.8rem] text-gray-500">No active files, using default seeded files.</p>
+                                    <p className="text-[0.8rem] text-gray-500">No active files, using default seeded files to fallback.</p>
                                 }
                             </div>
                         </div>
