@@ -95,16 +95,115 @@ npm run dev
 ```
 
 ### 2- Basic Usage
+Once both the backend (API) and frontend (UI) servers are running:
 
+🧱 Backend (Flask API)
+
+Runs on http://localhost:5000
+
+Connects to PostgreSQL and stores:
+
+- Courses, rooms, instructors, sections, and timeslots
+- Generated timetables and history records
+
+Handles all logic for:
+
+- File uploads (Excel/CSV)
+- CSP solving
+- Timetable storage & retrieval
+
+You can test API endpoints using Postman, cURL, or the frontend.
+
+Example request to generate a timetable:
+
+```bash
+curl -X POST http://localhost:5000/generate \
+  -H "Content-Type: application/json" \
+  -d '{"semester": "Fall 2025/2026"}'
+```
+
+Expected response:
+
+```json
+{
+  "status": "success",
+  "timetable_id": 1,
+  "summary": {
+    "violations": 0,
+    "generation_time": 1.27
+  }
+}
+```
+
+💻 Frontend (Next.js UI)
+
+Runs on http://localhost:3000
+
+Communicates with Flask through React Query API hooks
+
+Provides:
+
+Uploading – upload Excel/CSV data files
+
+Generating – run the CSP solver and view results
+
+History Tracking – browse previously generated timetables
+
+Timetable Page – visualize detailed schedules
+
+🧩 Example Workflow
+
+1) Upload Data
+
+Click on upload
+
+Upload an Excel or CSV file with courses, instructors, rooms, and sections
+
+The backend parses and seeds the database
+
+2) Generate Timetable
+
+Click “Generate Timetable” to trigger CSP solving on the backend
+
+The backend applies constraints and assigns valid (time slot, room, instructor) tuples
+
+3) View Results
+
+Once generated, view the timetable grid or export as CSV
+
+All generated timetables are stored with metadata (generation time, violations, etc.)
+
+4) History
+
+Visit /history or check the sidebar to view all past generations
+
+Click any record to view its details and re-generate with adjustments
+
+⚙️ Developer Tips
+
+To reset the database:
+
+```bash
+python seed.py 
+```
+
+To inspect tables in PostgreSQL:
+
+```bash
+psql -d csp -U <youruser>
+\dt   # list tables
+SELECT * FROM timetables LIMIT 5;
+```
+
+To debug the CSP logic:
+
+Modify and test solver.py — it’s modular and can run independently of Flask.
 
 ### 3- Project Layout
 Frontend Overview
-
-/ui built with:
-
-Next.js App Router
-React Query for caching + data fetching
-TailwindCSS
+- Next.js App Router
+- React Query for caching + data fetching
+- TailwindCSS
 
 Backend Overview
 | File | Description |
@@ -158,14 +257,16 @@ Database Schema
 
 📈 Future Work
 
-Add visual timetable grid UI
-Introduce soft constraint optimization scoring
-Use OR-Tools for faster solving
-Enable multi-department scheduling
-Add user authentication and roles (admin, instructor, student)
+- Add visual timetable grid UI
+- Introduce soft constraint optimization scoring
+- Use OR-Tools for faster solving
+- Enable multi-department scheduling
+- Add user authentication and roles (admin, instructor, student)
 
 🧑‍💻 Author
 
 Ammar Sarhan
+
 CSIT Department, E-JUST – Fall 2025/2026
+
 Alexandria, Egypt
