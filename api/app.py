@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 import os
+from utils.file import allowedFile
 
 app = Flask(__name__)
 
@@ -18,8 +19,26 @@ def upload():
 
     files = request.files.getlist('files')
 
+    # Validate the request.
     if not files or all(f.filename == '' for f in files):
         return jsonify({"error": "No selected files. Please provide a valid upload request."}), 400
+    
+    # Validate the number of files.
+    if len(files) != 5:
+        return jsonify({"error": "Exactly 5 files are required. Please provide a valid upload request."}), 400
+    
+    # Make sure all files are in the correct format.
+    invalid = [f.filename for f in files if not allowedFile(f.filename)]
+    if invalid:
+        return jsonify({
+            "error": f"Invalid file types: {', '.join(invalid)}"
+        }), 400
+    
+    # Remove the current existing folder to overwrite data.
+    for f in os.listdir(folder):
+        path = os.path.join(folder, f)
+        if os.path.isfile(path):
+            os.remove(path)
 
     savedFiles = []
 
@@ -30,7 +49,7 @@ def upload():
         savedFiles.append(filename)
 
     return jsonify({
-        "message": f"{len(savedFiles)} files uploaded successfully",
+        "message": f"{len(savedFiles)} files uploaded successfully.",
         "files": savedFiles
     }), 200
 
