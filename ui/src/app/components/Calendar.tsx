@@ -12,7 +12,7 @@ interface TimetableItem {
     };
 };
 
-interface CalendarProps {
+export interface CalendarProps {
     rooms: Array<Room>
     timeslots: Array<TimeSlot>,
     timetable: Array<TimetableItem>
@@ -39,7 +39,7 @@ export default function Calendar({ rooms, timeslots, timetable } : CalendarProps
 
     timetable.forEach((entry) => {
         const { day, startTime, endTime } = entry.timeslot;
-        const key = `${entry.room}-${day}-${startTime}–${endTime}`;
+        const key = `${entry.room}-${day}-${startTime}-${endTime}`;
         timetableMap.set(key, entry);
     });
 
@@ -65,7 +65,7 @@ export default function Calendar({ rooms, timeslots, timetable } : CalendarProps
                 {
                     rooms.map(room => {
                         return (
-                            <div key={room.id} className="grid grid-cols-3 w-full text-[0.8rem] text-center border-b border-gray-200 gap-y-2 h-8">
+                            <div key={room.id} className="grid grid-cols-3 w-full text-[0.8rem] text-center border-b border-gray-200 gap-y-2 h-20">
                                 <span className="border-r border-gray-200 p-1 flex items-center justify-center">{room.id}</span>
                                 <span className="border-r border-gray-200 p-1 flex items-center justify-center">{room.type}</span>
                                 <span className="p-1 flex items-center justify-center">{room.capacity}</span>
@@ -78,23 +78,53 @@ export default function Calendar({ rooms, timeslots, timetable } : CalendarProps
                 {
                     days.map((item, index) => {
                         return (
-                            <div key={index} className="flex flex-col w-full h-20 text-center border-b border-r border-gray-200 bg-gray-100 shrink-0">
-                                <div className="w-full border-b border-gray-200 h-10">
-                                    <span className="flex h-full items-center justify-center">
-                                        {item.day}
-                                    </span>
+                            <div key={index} className="flex flex-col w-full text-center border-b border-r border-gray-200 bg-gray-100 shrink-0">
+                                <div className="flex flex-col w-full h-20 text-center border-b border-r border-gray-200 bg-gray-100 shrink-0">
+                                    <div className="w-full border-b border-gray-200 h-10">
+                                        <span className="flex h-full items-center justify-center">
+                                            {item.day}
+                                        </span>
+                                    </div>
+                                    <div className="w-full grid grid-cols-4 border-gray-200 h-10 text-[0.8rem]">
+                                        {
+                                            item.intervals.map((interval, i) => {
+                                                return (
+                                                    <span key={i} className="flex h-full items-center justify-center border-r border-gray-200 last:border-0">
+                                                        {interval.startTime} - {interval.endTime}
+                                                    </span>
+                                                )
+                                            })
+                                        }
+                                    </div>
                                 </div>
-                                <div className="w-full grid grid-cols-4 border-gray-200 h-10 text-[0.8rem]">
-                                    {
-                                        item.intervals.map((interval, i) => {
-                                            return (
-                                                <span key={i} className="flex h-full items-center justify-center border-r border-gray-200 last:border-0">
-                                                    {interval.startTime} - {interval.endTime}
-                                                </span>
-                                            )
-                                        })
-                                    }
-                                </div>
+                                {
+                                    rooms.map((room, idx) => {
+                                        return (
+                                            <div key={idx} className="w-full grid grid-cols-4 border-gray-200 h-20 text-[0.8rem] border-b last:border-0 bg-white">
+                                                {
+                                                    item.intervals.map((interval, i) => {
+                                                        const lookupKey = `Room ${room.id}-${item.day}-${interval.startTime}-${interval.endTime}`;
+                                                        const value = timetableMap.get(lookupKey);
+
+                                                        if (value) {
+                                                            return (
+                                                                <div key={i} className="border-r text-xs border-gray-200 last:border-0 flex flex-col items-center justify-center">
+                                                                    <span>{value.course}</span>
+                                                                    <span className="text-gray-500">{value.instructor}</span>
+                                                                    <span className="text-gray-500">{value.section}</span>
+                                                                </div>
+                                                            )
+                                                        };
+                                                        
+                                                        return (
+                                                            <div key={i} className="border-r border-gray-200 last:border-0 flex items-center justify-center bg-gray-50"></div>
+                                                        )
+                                                    })
+                                                }
+                                            </div>
+                                        )
+                                    })
+                                }
                             </div>
                         )
                     })

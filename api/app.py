@@ -1,5 +1,6 @@
 import os
-from flask import Flask, request, jsonify
+import json
+from flask import Flask, request, jsonify, Response, stream_with_context
 from flask_cors import CORS
 
 from utils.models import Course, Instructor, Room, Section, TimeSlot
@@ -32,24 +33,29 @@ def dataset():
 def generate():
     print("Hit /generate endpoint. Handling generating timetable.")
 
-    timetable = generateTimetable()
+    def event_stream():
+        for event in generateTimetable():
+            yield f"data: {json.dumps(event)}\n\n"
 
-    # Also include room options for each section-course pair
-    session = SessionLocal()
+            if event.get("type") == "done":
+                timetable = event.get("data")
 
-    roomList = session.query(Room).all()
-    rooms = [{"id": room.id, "type": room.type, "capacity": room.capacity} for room in roomList]
+        # Once done, include room/timeslot data
+        session = SessionLocal()
 
-    timeslotList = session.query(TimeSlot).all()
-    timeslots = [{"day": timeslot.day, "startTime": timeslot.startTime, "endTime": timeslot.endTime} for timeslot in timeslotList]
+        rooms = [{"id": r.id, "type": r.type, "capacity": r.capacity} for r in session.query(Room).all()]
+        timeslots = [{"day": t.day, "startTime": t.startTime, "endTime": t.endTime} for t in session.query(TimeSlot).all()]
 
-    data = {
-        "timetable": timetable,
-        "rooms": rooms,
-        "timeslots": timeslots
-    }
+        data = {
+            "message": "Generated timetable successfully.",
+            "rooms": rooms,
+            "timeslots": timeslots,
+            "timetable": timetable
+        }
 
-    return jsonify({"message": "Generated timetable successfully.", "data": data})
+        yield f"data: {json.dumps({'type': 'complete', 'data': data})}\n\n"
+
+    return Response(stream_with_context(event_stream()), content_type="text/event-stream")
 
 @app.route('/upload', methods=['POST'])
 def upload():

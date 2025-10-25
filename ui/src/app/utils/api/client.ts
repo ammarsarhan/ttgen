@@ -1,3 +1,6 @@
+import { CalendarProps } from "@/app/components/Calendar";
+import { Room, TimeSlot } from "@/app/utils/types";
+
 export async function uploadFiles(files: FormData) {
     const target = "http://localhost:5000/upload";
 
@@ -26,13 +29,41 @@ export async function fetchDataset() {
     return data;
 };
 
-export async function fetchTimetable() {
-    const target = "http://localhost:5000/generate";
+export type FetchTimetableResult = CalendarProps & { message: string };
 
-    const res = await fetch(target, {
-        method: "GET"
+export function fetchTimetable(onUpdate?: (update: { progress?: number; log?: string }) => void): Promise<FetchTimetableResult> {
+    return new Promise((resolve, reject) => {
+        const source = new EventSource("http://localhost:5000/generate");
+
+        source.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+
+                if (data.type === "log") {
+                    // Log message event
+                    onUpdate?.({ log: data.message });
+                }
+                else if (data.type === "progress") {
+                    // Progress update
+                    onUpdate?.({ progress: data.progress });
+                }
+                else if (data.type === "done") {
+                    onUpdate?.({ log: "✅ Finished generating timetable." });
+                }
+                else if (data.type === "complete") {
+                    source.close();
+                    resolve(data.data);
+                }
+            } catch (err) {
+                console.error("Error parsing SSE event:", err);
+            }
+        };
+
+        source.onerror = (err) => {
+            console.error("SSE connection error:", err);
+            source.close();
+            reject(new Error("Failed to stream timetable generation."));
+        };
     });
+};
 
-    const { data } = await res.json();
-    return data;
-}

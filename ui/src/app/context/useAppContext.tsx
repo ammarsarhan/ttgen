@@ -38,6 +38,8 @@ export function AppContextProvider({ children } : AppContextProviderProps) {
     const [activeFiles, setActiveFiles] = useState<string[]>([]);
     const [timetables, setTimetables] = useState<string[]>([]);
 
+    
+
     const value = {
         isGenerateModalOpen,
         setIsGenerateModalOpen,
