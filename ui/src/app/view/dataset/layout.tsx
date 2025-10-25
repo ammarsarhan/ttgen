@@ -6,7 +6,7 @@ export default async function DatasetLayout({ children } : { children: ReactNode
     const queryClient = new QueryClient();
 
     await queryClient.prefetchQuery({
-        queryKey: ["dataset"],
+        queryKey: ["view", "dataset"],
         queryFn: fetchDataset
     });
 

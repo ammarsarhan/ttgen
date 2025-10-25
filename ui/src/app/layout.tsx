@@ -31,7 +31,7 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} flex h-screen w-full antialiased`}>
         <AppContextProvider>
           <HistoryToolbar/>
-          <div className="w-full">
+          <div className="absolute right-0 w-[calc(100%-18rem)]">
             <Navigation/>
             {children}  
           </div>

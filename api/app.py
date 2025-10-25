@@ -2,7 +2,7 @@ import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
-from models import Course, Instructor, Room, Section, TimeSlot
+from utils.models import Course, Instructor, Room, Section, TimeSlot
 from utils.db import SessionLocal
 from utils.seed import seed
 from utils.file import isAllowed
@@ -26,7 +26,6 @@ def dataset():
     }
 
     return jsonify({"message": "Fetched dataset data successfully.", "data": data})
-
 
 @app.route('/upload', methods=['POST'])
 def upload():

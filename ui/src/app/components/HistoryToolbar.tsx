@@ -11,7 +11,7 @@ export default function HistoryToolbar() {
     const { 
         isGenerateModalOpen, 
         setIsGenerateModalOpen, 
-        isUploadModalOpen, 
+        isUploadModalOpen,
         setIsUploadModalOpen,
         timetables 
     } = useAppContext();
@@ -30,7 +30,7 @@ export default function HistoryToolbar() {
         <>
             <GenerateModal {...GroundModalProps}/>
             <UploadModal {...UploadModalProps}/>
-            <aside className="h-full border-r w-80 border-gray-200 text-[0.83rem]">
+            <aside className="h-full border-r w-72 border-gray-200 text-[0.83rem] fixed bg-white z-50">
                 <div className="h-16 border-b border-gray-200">
 
                 </div>

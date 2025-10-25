@@ -2,11 +2,12 @@ import { ChangeEvent, useState } from "react";
 
 import { useMutation } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
+
+import useAppContext from "@/app/context/useAppContext";
 import { uploadFiles } from "@/app/utils/api/client";
 
 import { IoClose } from "react-icons/io5";
 import { MdOutlineUploadFile } from "react-icons/md";
-import useAppContext from "@/app/context/useAppContext";
 
 interface UploadModalProps {
     isOpen: boolean;
@@ -25,21 +26,17 @@ export default function UploadModal({ isOpen, onClose } : UploadModalProps) {
 
     const mutation = useMutation({
         mutationFn: uploadFiles,
-        mutationKey: ["upload"],
+        mutationKey: ["update", "files"],
         onSuccess: (data) => {
-            console.log(data);
-
             // Show a success message to the user.
 
             setFiles([]);
             setActiveFiles(data.files);
-
             setStatus("IDLE");
             onClose();
         },
         onError: () => {
             // Show an error message to the user.
-            
             setStatus("IDLE")
         }
     });
