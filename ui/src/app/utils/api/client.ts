@@ -25,3 +25,14 @@ export async function fetchDataset() {
     const { data } = await res.json();
     return data;
 };
+
+export async function fetchTimetable() {
+    const target = "http://localhost:5000/generate";
+
+    const res = await fetch(target, {
+        method: "GET"
+    });
+
+    const { data } = await res.json();
+    return data;
+}

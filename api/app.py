@@ -6,6 +6,7 @@ from utils.models import Course, Instructor, Room, Section, TimeSlot
 from utils.db import SessionLocal
 from utils.seed import seed
 from utils.file import isAllowed
+from solver import generateTimetable
 
 app = Flask(__name__)
 CORS(app, origins=["http://localhost:3000"]) # Make sure to accept requests from the frontend link. Ideally provide this in a .env variable.
@@ -26,6 +27,29 @@ def dataset():
     }
 
     return jsonify({"message": "Fetched dataset data successfully.", "data": data})
+
+@app.route('/generate', methods=['GET'])
+def generate():
+    print("Hit /generate endpoint. Handling generating timetable.")
+
+    timetable = generateTimetable()
+
+    # Also include room options for each section-course pair
+    session = SessionLocal()
+
+    roomList = session.query(Room).all()
+    rooms = [{"id": room.id, "type": room.type, "capacity": room.capacity} for room in roomList]
+
+    timeslotList = session.query(TimeSlot).all()
+    timeslots = [{"day": timeslot.day, "startTime": timeslot.startTime, "endTime": timeslot.endTime} for timeslot in timeslotList]
+
+    data = {
+        "timetable": timetable,
+        "rooms": rooms,
+        "timeslots": timeslots
+    }
+
+    return jsonify({"message": "Generated timetable successfully.", "data": data})
 
 @app.route('/upload', methods=['POST'])
 def upload():
