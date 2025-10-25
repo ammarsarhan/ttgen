@@ -1,6 +1,8 @@
+import uuid
 from sqlalchemy import Column, Integer, String, Enum, Table, ForeignKey, JSON, DateTime, func
 from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy.inspection import inspect
+from sqlalchemy.dialects.postgresql import UUID
 
 Base = declarative_base()
 
@@ -155,7 +157,7 @@ class TimeSlot(Base, BaseMixin):
 class Timetable(Base, BaseMixin):
     __tablename__ = "timetables"
 
-    id = Column(String, primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String, nullable=False)
     data = Column(JSON, nullable=False)
     createdAt = Column(DateTime(timezone=True), server_default=func.now())

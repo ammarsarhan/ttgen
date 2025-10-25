@@ -1,6 +1,6 @@
 import { DayType, Room, TimeSlot } from "@/app/utils/types"
 
-interface TimetableItem {
+export interface TimetableItem {
     course: string;
     instructor: string;
     room: string;

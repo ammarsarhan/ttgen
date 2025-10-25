@@ -18,7 +18,7 @@ type UploadModalActionType = "NEW" | "OVERRIDE";
 type UploadStatus = "IDLE" | "UPLOADING" | "SUCCESS" | "ERROR";
 
 export default function UploadModal({ isOpen, onClose } : UploadModalProps) {
-    const { setActiveFiles } = useAppContext();
+    const { setActiveFiles, setData } = useAppContext();
 
     const [actionType, setActionType] = useState<UploadModalActionType>("NEW");
     const [files, setFiles] = useState<File[]>([]);
@@ -31,6 +31,7 @@ export default function UploadModal({ isOpen, onClose } : UploadModalProps) {
             // Show a success message to the user.
 
             setFiles([]);
+            setData(null);
             setActiveFiles(data.files);
             setStatus("IDLE");
             onClose();

@@ -19,11 +19,20 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 def session():
     db = SessionLocal()
 
+    timetables = db.query(
+        Timetable.id,
+        Timetable.name,
+        Timetable.createdAt
+    ).all()
+
     data = {
-       "timetables": [t.toDict() for t in db.query(Timetable).all()]
+        "timetables": [
+            {"id": t.id, "name": t.name, "createdAt": t.createdAt}
+            for t in timetables
+        ]
     }
 
-    return jsonify({"message": "Fetched dataset data successfully.", "data": data})
+    return jsonify({"message": "Fetched timetables successfully.", "data": data})
 
 @app.route('/dataset', methods=['GET'])
 def dataset():
@@ -75,8 +84,17 @@ def save():
 
     try:
         payload = request.get_json()
-        name = payload.get("name", "Untitled Timetable")
-        data = payload.get("data")
+
+        # If frontend sends an array of timetable items
+        if isinstance(payload, list):
+            name = "Untitled Timetable"
+            data = payload  # Save entire list
+        # If frontend sends an object with "name" and "data"
+        elif isinstance(payload, dict):
+            name = payload.get("name", "Untitled Timetable")
+            data = payload.get("data")
+        else:
+            return jsonify({"error": "Invalid payload format"}), 400
 
         if not data:
             return jsonify({"error": "Timetable data is required"}), 400
@@ -99,10 +117,11 @@ def save():
     except Exception as e:
         print("❌ Error saving timetable:", e)
         session.rollback()
-        return jsonify({"error": "Failed to save timetable. Please try again later."}), 500
+        return jsonify({"error": str(e)}), 500
 
     finally:
         session.close()
+
 
 @app.route('/upload', methods=['POST'])
 def upload():
@@ -157,6 +176,43 @@ def upload():
         "message": f"{len(savedFiles)} files uploaded successfully.",
         "files": savedFiles
     }), 200
+
+@app.route('/timetable/<string:id>', methods=['GET'])
+def fetchTimetable(id):
+    print(f"Hit /timetable/id. Fetching timetable with ID: {id}.")
+    db = SessionLocal()
+
+    try:
+        timetable = db.query(Timetable).filter(Timetable.id == id).first()
+
+        if not timetable:
+            return jsonify({"error": f"Timetable with id {id} not found"}), 404
+
+        rooms = [{"id": r.id, "type": r.type, "capacity": r.capacity} for r in db.query(Room).all()]
+        timeslots = [{"day": t.day, "startTime": t.startTime, "endTime": t.endTime} for t in db.query(TimeSlot).all()]
+
+        data = {
+            "timetable": {
+                "id": timetable.id,
+                "name": timetable.name,
+                "data": timetable.data,
+                "createdAt": timetable.createdAt,
+            },
+            "rooms": rooms,
+            "timeslots": timeslots
+        }
+
+        return jsonify({
+            "message": "Fetched timetable successfully",
+            "data": data
+        }), 200
+
+    except Exception as e:
+        print("❌ Error fetching timetable:", e)
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        db.close()
 
 if __name__ == '__main__':
     app.run(debug=True)

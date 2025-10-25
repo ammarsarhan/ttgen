@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
-import { AppContextProvider } from "@/app/context/useAppContext";
+import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
+
 import Navigation from "@/app/components/Navigation";
 import HistoryToolbar from "@/app/components/HistoryToolbar";
+import { fetchSession } from "@/app/utils/api/server";
+import { AppContextProvider } from "@/app/context/useAppContext";
 
-import './globals.css'
+import './globals.css';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,20 +24,29 @@ export const metadata: Metadata = {
   title: "CSP Automated Timetable Generator"
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const queryClient = new QueryClient();
+
+  await queryClient.prefetchQuery({
+    queryKey: ["session"],
+    queryFn: fetchSession
+  });
+
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} flex h-screen w-full antialiased`}>
         <AppContextProvider>
-          <HistoryToolbar/>
-          <div className="absolute right-0 w-[calc(100%-18rem)]">
-            <Navigation/>
-            {children}  
-          </div>
+          <HydrationBoundary state={dehydrate(queryClient)}>
+              <HistoryToolbar/>
+              <div className="absolute right-0 w-[calc(100%-18rem)] h-full">
+                <Navigation/>
+                {children}  
+              </div>
+          </HydrationBoundary>
         </AppContextProvider>
       </body>
     </html>

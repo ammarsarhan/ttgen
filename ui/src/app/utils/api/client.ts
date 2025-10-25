@@ -1,5 +1,4 @@
-import { CalendarProps } from "@/app/components/Calendar";
-import { Room, TimeSlot } from "@/app/utils/types";
+import { CalendarProps, TimetableItem } from "@/app/components/Calendar";
 
 export async function uploadFiles(files: FormData) {
     const target = "http://localhost:5000/upload";
@@ -31,7 +30,7 @@ export async function fetchDataset() {
 
 export type FetchTimetableResult = CalendarProps & { message: string };
 
-export function fetchTimetable(onUpdate?: (update: { progress?: number; log?: string }) => void): Promise<FetchTimetableResult> {
+export function fetchTimetableStatus(onUpdate?: (update: { progress?: number; log?: string }) => void): Promise<FetchTimetableResult> {
     return new Promise((resolve, reject) => {
         const source = new EventSource("http://localhost:5000/generate");
 
@@ -67,3 +66,39 @@ export function fetchTimetable(onUpdate?: (update: { progress?: number; log?: st
     });
 };
 
+export async function saveTimetable(payload: Array<TimetableItem>) {
+    const target = "http://localhost:5000/save";
+
+    const res = await fetch(target, {
+        method: "POST",
+        body: JSON.stringify(payload),
+        headers: {
+            "Content-Type": "application/json"
+        }
+    });
+
+    const data = await res.json();
+    return data;
+};
+
+export async function fetchSession() {
+    const target = "http://localhost:5000/session";
+
+    const res = await fetch(target, {
+        method: 'GET'
+    });
+
+    const { data } = await res.json();
+    return data;    
+};
+
+export async function fetchTimetable(id: string) {
+    const target = `http://localhost:5000/timetable/${id}`;
+
+    const res = await fetch(target, {
+        method: 'GET'
+    });
+
+    const { data } = await res.json();
+    return data;  
+};

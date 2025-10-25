@@ -1,20 +1,30 @@
 "use client";
 
+import Link from "next/link";
+
 import useAppContext from "@/app/context/useAppContext";
 import GenerateModal from "@/app/components/modals/Generate";
 import UploadModal from "@/app/components/modals/Upload";
 
 import { BiPlus, BiSearch } from "react-icons/bi";
 import { MdOutlineUploadFile } from "react-icons/md";
-import Link from "next/link";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { fetchSession } from "@/app/utils/api/client";
+
+interface TimetableItem {
+    name: string;
+    id: string;
+    createdAt: Date;
+}
 
 export default function HistoryToolbar() {
+    const queryClient = useQueryClient();
+
     const { 
         isGenerateModalOpen, 
         setIsGenerateModalOpen, 
         isUploadModalOpen,
-        setIsUploadModalOpen,
-        timetables 
+        setIsUploadModalOpen
     } = useAppContext();
 
     const GroundModalProps = {
@@ -26,6 +36,12 @@ export default function HistoryToolbar() {
         isOpen: isUploadModalOpen,
         onClose: () => setIsUploadModalOpen(false)
     };
+
+    const { data } = useQuery({
+        queryKey: ["session"],
+        queryFn: fetchSession,
+        initialData: () => queryClient.getQueryData(["session"]),
+    });
 
     return (
         <>
@@ -52,14 +68,22 @@ export default function HistoryToolbar() {
                                 <BiSearch className="text-gray-500 absolute top-1/2 left-2.5 -translate-y-1/2 size-3.5"/>
                                 <input type="text" className="rounded-md border w-full border-gray-200 pl-7 pr-3 py-1.5 text-[0.8rem]" placeholder="Search timetables"/>
                             </div>
-                            <div className="flex flex-col gap-y-1 text-[0.8125rem]">
+                            <div className="flex flex-col gap-y-2 text-[0.8125rem]">
                                 <span className="font-medium">History</span>
                                 {
-                                    timetables.length > 0 ?
-                                    <ul>
+                                    data.timetables.length > 0 ?
+                                    <ul className="flex flex-col gap-y-0.5">
                                         {
-                                            timetables.map((timetable, index) => {
-                                                return <li key={index}>{timetable}</li>
+                                            data.timetables.map((item: TimetableItem, index: number) => {
+                                                return (
+                                                    <Link
+                                                        key={index} 
+                                                        href={`/timetable/${item.id}`}
+                                                        className="text-blue-800 hover:underline w-fit"
+                                                    >
+                                                        {item.name}
+                                                    </Link>
+                                                )
                                             })
                                         }
                                     </ul> :

@@ -98,7 +98,7 @@ export default function GenerateModal({ isOpen, onClose } : GenerateModalProps) 
                                     <button
                                         className={`
                                             px-4 py-2 rounded-md transition-colors text-xs
-                                            ${isGeneratable ? "cursor-pointer text-white bg-indigo-800 hover:bg-indigo-800/90" : "cursor-not-allowed border border-gray-200"}
+                                            ${isGeneratable ? "cursor-pointer text-white bg-black hover:bg-black/90" : "cursor-not-allowed border border-gray-200"}
                                         `}
                                         disabled={!isGeneratable}
                                         onClick={handleGenerate}

@@ -2,7 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createContext, ReactNode, useContext, useState } from "react";
-import { fetchTimetable, FetchTimetableResult } from "@/app/utils/api/client";
+import { FetchTimetableResult, fetchTimetableStatus } from "@/app/utils/api/client";
 
 interface AppContextType {
     isGenerateModalOpen: boolean;
@@ -13,9 +13,9 @@ interface AppContextType {
     setActiveFiles: (value: Array<string>) => void;
     timetables: Array<string>;
     setTimetables: (value: Array<string>) => void;
-    saveTimetable: () => void;
     generateTimetable: (onComplete?: () => void) => void;
     data: FetchTimetableResult | null;
+    setData: (value: FetchTimetableResult | null) => void;
     progress: number;
     setProgress: (value: number) => void;
     logs: string[];
@@ -29,7 +29,7 @@ export default function useAppContext() {
 
     if (!context) {
         throw new Error("useAppContext must be used within a AppContextProvider");
-    }
+    };
 
     return context;
 }
@@ -56,7 +56,7 @@ export function AppContextProvider({ children } : AppContextProviderProps) {
         setData(null);
 
         try {
-            const result = await fetchTimetable(({ progress, log }) => {
+            const result = await fetchTimetableStatus(({ progress, log }) => {
                 if (progress !== undefined) setProgress(progress);
                 if (log) setLogs((prev) => [...prev, log]);
             });
@@ -70,10 +70,6 @@ export function AppContextProvider({ children } : AppContextProviderProps) {
         }
     };
 
-    const saveTimetable = async () => {
-
-    };
-
     const value = {
         isGenerateModalOpen,
         setIsGenerateModalOpen,
@@ -84,8 +80,8 @@ export function AppContextProvider({ children } : AppContextProviderProps) {
         timetables,
         setTimetables,
         generateTimetable,
-        saveTimetable,
         data,
+        setData,
         logs,
         setLogs,
         progress,
