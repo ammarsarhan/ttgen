@@ -2,6 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createContext, ReactNode, useContext, useState } from "react";
+import { fetchTimetable, FetchTimetableResult } from "@/app/utils/api/client";
 
 interface AppContextType {
     isGenerateModalOpen: boolean;
@@ -12,6 +13,13 @@ interface AppContextType {
     setActiveFiles: (value: Array<string>) => void;
     timetables: Array<string>;
     setTimetables: (value: Array<string>) => void;
+    saveTimetable: () => void;
+    generateTimetable: (onComplete?: () => void) => void;
+    data: FetchTimetableResult | null;
+    progress: number;
+    setProgress: (value: number) => void;
+    logs: string[];
+    setLogs: (value: Array<string>) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -38,7 +46,33 @@ export function AppContextProvider({ children } : AppContextProviderProps) {
     const [activeFiles, setActiveFiles] = useState<string[]>([]);
     const [timetables, setTimetables] = useState<string[]>([]);
 
-    
+    const [progress, setProgress] = useState(0);
+    const [logs, setLogs] = useState<string[]>([]);
+    const [data, setData] = useState<FetchTimetableResult | null>(null);
+
+    const generateTimetable = async (onComplete?: () => void) => {
+        setProgress(0);
+        setLogs([]);
+        setData(null);
+
+        try {
+            const result = await fetchTimetable(({ progress, log }) => {
+                if (progress !== undefined) setProgress(progress);
+                if (log) setLogs((prev) => [...prev, log]);
+            });
+
+            setData(result);
+            queryClient.setQueryData(["home"], result);
+
+            if (onComplete) onComplete();
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const saveTimetable = async () => {
+
+    };
 
     const value = {
         isGenerateModalOpen,
@@ -48,7 +82,14 @@ export function AppContextProvider({ children } : AppContextProviderProps) {
         activeFiles,
         setActiveFiles,
         timetables,
-        setTimetables
+        setTimetables,
+        generateTimetable,
+        saveTimetable,
+        data,
+        logs,
+        setLogs,
+        progress,
+        setProgress
     }
 
     return (

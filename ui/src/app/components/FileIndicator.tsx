@@ -49,8 +49,7 @@ export default function FileIndicator() {
                     )
                 }
                 <Link 
-                    href="/view/dataset" 
-                    target="_blank"
+                    href="/view/dataset"
                     className="text-blue-700 hover:underline cursor-pointer mt-2 text-xs text-left w-fit"
                 >
                     View Dataset

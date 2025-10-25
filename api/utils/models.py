@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Enum, Table, ForeignKey
+from sqlalchemy import Column, Integer, String, Enum, Table, ForeignKey, JSON, DateTime, func
 from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy.inspection import inspect
 
@@ -151,3 +151,11 @@ class TimeSlot(Base, BaseMixin):
     day = Column(DayEnum, nullable=False)
     startTime = Column(StartTimeEnum, nullable=False)
     endTime = Column(EndTimeEnum, nullable=False)
+
+class Timetable(Base, BaseMixin):
+    __tablename__ = "timetables"
+
+    id = Column(String, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    data = Column(JSON, nullable=False)
+    createdAt = Column(DateTime(timezone=True), server_default=func.now())

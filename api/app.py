@@ -3,7 +3,7 @@ import json
 from flask import Flask, request, jsonify, Response, stream_with_context
 from flask_cors import CORS
 
-from utils.models import Course, Instructor, Room, Section, TimeSlot
+from utils.models import Course, Instructor, Room, Section, TimeSlot, Timetable
 from utils.db import SessionLocal
 from utils.seed import seed
 from utils.file import isAllowed
@@ -14,6 +14,16 @@ CORS(app, origins=["http://localhost:3000"]) # Make sure to accept requests from
 
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+@app.route('/session', methods=['GET'])
+def session():
+    db = SessionLocal()
+
+    data = {
+       "timetables": [t.toDict() for t in db.query(Timetable).all()]
+    }
+
+    return jsonify({"message": "Fetched dataset data successfully.", "data": data})
 
 @app.route('/dataset', methods=['GET'])
 def dataset():
@@ -56,6 +66,43 @@ def generate():
         yield f"data: {json.dumps({'type': 'complete', 'data': data})}\n\n"
 
     return Response(stream_with_context(event_stream()), content_type="text/event-stream")
+
+@app.route('/save', methods=['POST'])
+def save():
+    print("Hit /save endpoint. Parsing and handling saving timetable.")
+
+    session = SessionLocal()
+
+    try:
+        payload = request.get_json()
+        name = payload.get("name", "Untitled Timetable")
+        data = payload.get("data")
+
+        if not data:
+            return jsonify({"error": "Timetable data is required"}), 400
+
+        timetable = Timetable(name=name, data=data)
+        session.add(timetable)
+        session.commit()
+        session.refresh(timetable)
+
+        return jsonify({
+            "message": "✅ Timetable saved successfully",
+            "timetable": {
+                "id": timetable.id,
+                "name": timetable.name,
+                "data": timetable.data,
+                "createdAt": timetable.createdAt,
+            },
+        }), 201
+
+    except Exception as e:
+        print("❌ Error saving timetable:", e)
+        session.rollback()
+        return jsonify({"error": "Failed to save timetable. Please try again later."}), 500
+
+    finally:
+        session.close()
 
 @app.route('/upload', methods=['POST'])
 def upload():

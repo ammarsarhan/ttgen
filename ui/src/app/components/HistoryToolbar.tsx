@@ -6,6 +6,7 @@ import UploadModal from "@/app/components/modals/Upload";
 
 import { BiPlus, BiSearch } from "react-icons/bi";
 import { MdOutlineUploadFile } from "react-icons/md";
+import Link from "next/link";
 
 export default function HistoryToolbar() {
     const { 
@@ -31,8 +32,8 @@ export default function HistoryToolbar() {
             <GenerateModal {...GroundModalProps}/>
             <UploadModal {...UploadModalProps}/>
             <aside className="h-full border-r w-72 border-gray-200 text-[0.83rem] fixed bg-white z-50">
-                <div className="h-16 border-b border-gray-200">
-
+                <div className="h-16 border-b border-gray-200 p-4 flex items-center">
+                    <Link href="/" className="hover:underline text-[0.95rem] text-indigo-800 font-medium">ttgen</Link>
                 </div>
                 <div className="p-4">
                     <div className="flex flex-col">
