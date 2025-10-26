@@ -8,6 +8,7 @@ from .models import Course, Instructor, Room, Section, TimeSlot
 def seed(folder: str):
     print(f"📦 Seeding database from {folder}...\n")
     db = SessionLocal()
+    
     try:
         # Courses
         with open(os.path.join(folder, "Courses.csv"), newline="", encoding="utf-8") as f:

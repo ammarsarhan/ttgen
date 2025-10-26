@@ -71,12 +71,12 @@ export default function Navigation() {
                 disabled={isDisabled}
                 onClick={handleSaveTimetable}
             >
-                {!isPopulated
+                {isTimetableRoute
+                    ? "Viewing Timetable"
+                    : !isPopulated
                     ? "Save Timetable"
                     : isSaved
                     ? "Saved"
-                    : isTimetableRoute
-                    ? "Viewing Timetable"
                     : "Save Timetable"}
             </button>
         </nav>

@@ -38,41 +38,65 @@ def session():
 def dataset():
     db = SessionLocal()
 
-    data = {
-        "courses": [c.toDict() for c in db.query(Course).all()],
-        "instructors": [i.toDict() for i in db.query(Instructor).all()],
-        "rooms": [r.toDict() for r in db.query(Room).all()],
-        "sections": [s.toDict() for s in db.query(Section).all()],
-        "timeslots": [t.toDict() for t in db.query(TimeSlot).all()],
-    }
+    try:
+        data = {
+            "courses": [c.toDict() for c in db.query(Course).all()],
+            "instructors": [i.toDict() for i in db.query(Instructor).all()],
+            "rooms": [r.toDict() for r in db.query(Room).all()],
+            "sections": [s.toDict() for s in db.query(Section).all()],
+            "timeslots": [t.toDict() for t in db.query(TimeSlot).all()],
+        }
 
-    return jsonify({"message": "Fetched dataset data successfully.", "data": data})
+        return jsonify({"message": "Fetched dataset data successfully.", "data": data})
+    
+    except Exception as e:
+        print("❌ Error saving timetable:", e)
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        db.close()
 
 @app.route('/generate', methods=['GET'])
 def generate():
     print("Hit /generate endpoint. Handling generating timetable.")
 
     def event_stream():
-        for event in generateTimetable():
-            yield f"data: {json.dumps(event)}\n\n"
-
-            if event.get("type") == "done":
-                timetable = event.get("data")
-
-        # Once done, include room/timeslot data
         session = SessionLocal()
+        timetable = None
+        try:
+            for event in generateTimetable():
+                yield f"data: {json.dumps(event)}\n\n"
 
-        rooms = [{"id": r.id, "type": r.type, "capacity": r.capacity} for r in session.query(Room).all()]
-        timeslots = [{"day": t.day, "startTime": t.startTime, "endTime": t.endTime} for t in session.query(TimeSlot).all()]
+                if event.get("type") == "done":
+                    timetable = event.get("data")
 
-        data = {
-            "message": "Generated timetable successfully.",
-            "rooms": rooms,
-            "timeslots": timeslots,
-            "timetable": timetable
-        }
+            # After generation completes:
+            rooms = [
+                {"id": r.id, "type": r.type, "capacity": r.capacity}
+                for r in session.query(Room).all()
+            ]
+            timeslots = [
+                {"day": t.day, "startTime": t.startTime, "endTime": t.endTime}
+                for t in session.query(TimeSlot).all()
+            ]
 
-        yield f"data: {json.dumps({'type': 'complete', 'data': data})}\n\n"
+            data = {
+                "message": "Generated timetable successfully.",
+                "rooms": rooms,
+                "timeslots": timeslots,
+                "timetable": timetable
+            }
+
+            yield f"data: {json.dumps({'type': 'complete', 'data': data})}\n\n"
+
+        except GeneratorExit:
+            print("Client disconnected during streaming.")
+        except Exception as e:
+            print(f"Error in event_stream: {e}")
+            yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+        finally:
+            session.close()
+            print("Database session closed.")
 
     return Response(stream_with_context(event_stream()), content_type="text/event-stream")
 
@@ -121,7 +145,6 @@ def save():
 
     finally:
         session.close()
-
 
 @app.route('/upload', methods=['POST'])
 def upload():

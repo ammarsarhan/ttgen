@@ -1,8 +1,9 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { createContext, ReactNode, useContext, useState } from "react";
+import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import { FetchTimetableResult, fetchTimetableStatus } from "@/app/utils/api/client";
+import { usePathname } from "next/navigation";
 
 interface AppContextType {
     isGenerateModalOpen: boolean;
@@ -40,6 +41,7 @@ interface AppContextProviderProps {
 
 export function AppContextProvider({ children } : AppContextProviderProps) {
     const queryClient = new QueryClient();
+    const pathname = usePathname();
 
     const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
@@ -69,6 +71,13 @@ export function AppContextProvider({ children } : AppContextProviderProps) {
             console.error(err);
         }
     };
+
+    useEffect(() => {
+        queueMicrotask(() => {
+            setIsGenerateModalOpen(false);
+            setIsUploadModalOpen(false);
+        });
+    }, [pathname])
 
     const value = {
         isGenerateModalOpen,
