@@ -243,21 +243,3 @@ Database Schema
 | violations | Number of hard constraint violations |
 | runtime | Time taken to generate timetable |
 | soft_score | (optional) measure of preference satisfaction |
-
----
-
-📈 Future Work
-
-- Add visual timetable grid UI
-- Introduce soft constraint optimization scoring
-- Use OR-Tools for faster solving
-- Enable multi-department scheduling
-- Add user authentication and roles (admin, instructor, student)
-
-🧑‍💻 Author
-
-Ammar Sarhan
-
-CSIT Department, E-JUST – Fall 2025/2026
-
-Alexandria, Egypt
